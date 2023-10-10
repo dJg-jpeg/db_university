@@ -39,6 +39,10 @@ class View:
         }
 
     @staticmethod
+    def output_error_message():
+        print("Incorrect input")
+
+    @staticmethod
     def _output_options(options_dict: dict, amount_of_tabs: int, title: str) -> None:
         options = tuple(options_dict.keys())
         tab_string = "\t" * amount_of_tabs

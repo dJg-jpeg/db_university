@@ -26,8 +26,15 @@ class Model:
         reset(fill=type_of_reset)
 
     def create_student(self, student_name, group_name):
-        get_group_id = f"select g.id\n" \
-                       f"from groups as g\n" \
-                       f"where g.name = '{group_name}'"
-        group_id = self._execute_request(get_group_id)[0][0]
+        group_id = self._execute_request(
+            f"select g.id\n"
+            f"from groups as g\n"
+            f"where g.name = '{group_name}'"
+        )[0][0]
+        query = """INSERT INTO students(name, group_id) VALUES (%s, %s)"""
+        prepared_data = ((student_name, group_id),)
+        cur = self.connection.cursor()
+        cur.execute(query, prepared_data)
+        self.connection.commit()
+        cur.close()
 

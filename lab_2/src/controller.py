@@ -52,7 +52,10 @@ class Controller:
 
     def create_student(self, args):
         name, group_name = args
-        self.model.create_student(name, group_name)
+        try:
+            self.model.create_student(name, group_name)
+        except IndexError:
+            self.view.output_error_message()
 
     def create_group(self, name):
         pass
