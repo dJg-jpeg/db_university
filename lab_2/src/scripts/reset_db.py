@@ -2,6 +2,7 @@ from datetime import date
 from faker import Faker
 from random import randint, choice
 from psycopg2 import connect
+from pathlib import Path
 
 STUDENTS_AMOUNT = 6
 GROUPS_AMOUNT = 3
@@ -22,7 +23,8 @@ choose_discipline = [
 
 
 def create() -> None:
-    with open('all_marks.sql', 'r') as file:
+    filepath = Path(__file__).parent.resolve() / Path("all_marks.sql")
+    with open(filepath, 'r') as file:
         scrypt = file.read()
 
     connection = connect(
@@ -147,7 +149,7 @@ def insert_data_to_db(students_table, groups_table, disciplines_table, student_d
     connection.close()
 
 
-def reset(fill=False) -> None:
+def reset(fill) -> None:
     create()
     if fill:
         students, groups, disciplines, teachers, marks = generate_data()

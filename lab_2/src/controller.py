@@ -6,17 +6,17 @@ class Controller:
     def __init__(self):
         self.available = {
             "create": {
-                "db": {"reset": self.reset, "reset_fill": self.reset_fill},
+                "db": self.reset,
                 "student": self.create_student,
                 "group": self.create_group,
                 "discipline": self.create_discipline,
                 "mark": self.create_mark,
             },
             "read": {
-                "students": self.read_students,
-                "groups": self.read_groups,
-                "disciplines": self.read_disciplines,
-                "marks": self.read_marks,
+                "students": self.read,
+                "groups": self.read,
+                "disciplines": self.read,
+                "marks": self.read,
             },
             "update": {
                 "student": self.update_student,
@@ -37,42 +37,35 @@ class Controller:
     def run(self):
         while True:
             chosen_mode_viewer, chosen_mode = self.view.show_menu()
-            if chosen_mode_viewer:
-                chosen_option_viewer, chosen_option = chosen_mode_viewer()
-                args_or_command = chosen_option_viewer()
-                if chosen_option == "db":
-                    pass
-            else:
+            if not chosen_mode_viewer:
+                self.model.disconnect()
                 break
+            chosen_option_viewer, chosen_option = chosen_mode_viewer()
+            args_or_command = chosen_option_viewer()
+            self.available[chosen_mode][chosen_option](args_or_command)
 
-    def reset(self):
+    def reset(self, type_of_reset):
+        if type_of_reset == "reset_fill":
+            self.model.reset_db(True)
+        else:
+            self.model.reset_db(False)
+
+    def create_student(self, args):
+        name, group_name = args
+        self.model.create_student(name, group_name)
+
+    def create_group(self, name):
         pass
 
-    def reset_fill(self):
+    def create_discipline(self, args):
+        name, teacher_name = args
         pass
 
-    def create_student(self):
+    def create_mark(self, args):
+        value, mark_date, student_name, discipline_name = args
         pass
 
-    def create_group(self):
-        pass
-
-    def create_discipline(self):
-        pass
-
-    def create_mark(self):
-        pass
-
-    def read_students(self):
-        pass
-
-    def read_groups(self):
-        pass
-
-    def read_disciplines(self):
-        pass
-
-    def read_marks(self):
+    def read(self, read_from):
         pass
 
     def update_student(self):

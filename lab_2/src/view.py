@@ -146,17 +146,21 @@ class View:
         response = self._handle_wrong_input(self.available_read)
         return response, self._get_key_by_value(self.available_read, response)
 
-    def show_read_students(self):
-        pass
+    @staticmethod
+    def show_read_students():
+        return "students"
 
-    def show_read_groups(self):
-        pass
+    @staticmethod
+    def show_read_groups():
+        return "groups"
 
-    def show_read_disciplines(self):
-        pass
+    @staticmethod
+    def show_read_disciplines():
+        return "disciplines"
 
-    def show_read_marks(self):
-        pass
+    @staticmethod
+    def show_read_marks():
+        return "marks"
 
     def show_menu_update(self):
         self._output_options(
