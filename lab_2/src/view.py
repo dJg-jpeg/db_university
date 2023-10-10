@@ -32,10 +32,10 @@ class View:
             "mark": self.show_update_marks,
         }
         self.available_delete: dict = {
-            "student": self.show_delete_students,
-            "groups": self.show_delete_groups,
-            "discipline": self.show_delete_disciplines,
-            "mark": self.show_delete_marks,
+            "student": self.show_delete_student,
+            "groups": self.show_delete_group,
+            "discipline": self.show_delete_discipline,
+            "mark": self.show_delete_mark,
         }
 
     @staticmethod
@@ -191,19 +191,37 @@ class View:
         self._output_options(
             self.available_delete,
             amount_of_tabs=1,
-            title="Choose what do you want to read"
+            title="Choose what do you want to delete"
         )
         response = self._handle_wrong_input(self.available_delete)
         return response, self._get_key_by_value(self.available_delete, response)
 
-    def show_delete_students(self):
-        pass
+    @staticmethod
+    def show_delete_student():
+        while True:
+            student = input("Input student name:")
+            if len(student) > 50:
+                print("\nPlease input student name that fits in 50 characters\n")
+                continue
+            return student
 
-    def show_delete_groups(self):
-        pass
+    @staticmethod
+    def show_delete_group():
+        while True:
+            group = input("Input group name:")
+            if len(group) > 4:
+                print("\nPlease input student name that fits in 4 characters\n")
+                continue
+            return group
 
-    def show_delete_disciplines(self):
-        pass
+    @staticmethod
+    def show_delete_discipline():
+        while True:
+            discipline = input("Input discipline name:")
+            if len(discipline) > 50:
+                print("\nPlease input discipline name that fits in 50 characters\n")
+                continue
+            return discipline
 
-    def show_delete_marks(self):
+    def show_delete_mark(self):
         pass

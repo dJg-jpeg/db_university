@@ -58,7 +58,7 @@ class Controller:
             self.view.output_error_message()
 
     def create_group(self, name):
-        pass
+        self.model.create_group(name)
 
     def create_discipline(self, args):
         name, teacher_name = args
