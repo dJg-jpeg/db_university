@@ -40,6 +40,8 @@ class Controller:
             if chosen_mode_viewer:
                 chosen_option_viewer, chosen_option = chosen_mode_viewer()
                 args_or_command = chosen_option_viewer()
+                if chosen_option == "db":
+                    pass
             else:
                 break
 
