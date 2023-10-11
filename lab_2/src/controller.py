@@ -1,5 +1,17 @@
 from .model import Model
 from .view import View
+from functools import wraps
+
+
+def catch_db_error(option):
+    @wraps(option)
+    def inner(self, *args, **kwargs):
+        try:
+            option(self, *args, **kwargs)
+        except IndexError:
+            self.view.output_error_message()
+
+    return inner
 
 
 class Controller:
@@ -50,23 +62,22 @@ class Controller:
         else:
             self.model.reset_db(False)
 
+    @catch_db_error
     def create_student(self, args):
         name, group_name = args
-        try:
-            self.model.create_student(name, group_name)
-        except IndexError:
-            self.view.output_error_message()
+        self.model.create_student(name, group_name)
 
     def create_group(self, name):
         self.model.create_group(name)
 
     def create_discipline(self, args):
         name, teacher_name = args
-        pass
+        self.model.create_discipline(name, teacher_name)
 
+    @catch_db_error
     def create_mark(self, args):
         value, mark_date, student_name, discipline_name = args
-        pass
+        self.model.create_mark(value, mark_date, student_name, discipline_name)
 
     def read(self, read_from):
         pass

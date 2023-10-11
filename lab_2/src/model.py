@@ -14,8 +14,9 @@ class Model:
         self.insert_queries = {
             "students": """INSERT INTO students(name, group_id) VALUES (%s, %s)""",
             "groups": """INSERT INTO groups(name) VALUES (%s)""",
-            "disciplines": None,
-            "marks": None,
+            "disciplines": """INSERT INTO disciplines(name, teacher_name) VALUES (%s, %s)""",
+            "student_disciplines": """INSERT INTO student_disciplines(student_id, discipline_id) VALUES (%s, %s)""",
+            "marks": """INSERT INTO marks(value, discipline_id, student_id, when_received) VALUES (%s, %s, %s, %s)""",
         }
 
     def disconnect(self):
@@ -38,12 +39,40 @@ class Model:
         reset(fill=type_of_reset)
 
     def create_student(self, student_name, group_name):
-        group_id = self._execute_select(f"select g.id\n"
-                                        f"from groups as g\n"
-                                        f"where g.name = '{group_name}'")[0][0]
-        prepared_data = ((student_name, group_id),)
+        group_id = self._execute_select(
+            f"select g.id\n"
+            f"from groups as g\n"
+            f"where g.name = '{group_name}'"
+        )[0][0]
+        prepared_data = ((student_name, ), (group_id, ))
         self._execute_insert("students", prepared_data)
 
     def create_group(self, group_name):
         prepared_data = ((group_name,),)
         self._execute_insert("groups", prepared_data)
+
+    def create_discipline(self, discipline_name, teacher_name):
+        prepared_data = ((discipline_name, ), (teacher_name, ))
+        self._execute_insert("disciplines", prepared_data)
+
+    def create_mark(self, mark_value, mark_date, student_name, discipline_name):
+        student_id = self._execute_select(
+            f"select s.id\n"
+            f"from students as s\n"
+            f"where s.name = '{student_name}'"
+        )[0][0]
+        discipline_id = self._execute_select(
+            f"select d.id\n"
+            f"from disciplines as d\n"
+            f"where d.name = '{discipline_name}'"
+        )[0][0]
+        check_if_exists = self._execute_select(
+            f"select sd.student_id\n"
+            f"from student_disciplines as sd\n"
+            f"where sd.discipline_id = {discipline_id}")
+        if len(check_if_exists) == 0:
+            self._execute_insert("student_disciplines", ((student_id, ), (discipline_id, )))
+        prepared_data = ((mark_value, ), (discipline_id, ), (student_id, ), (mark_date, ))
+        self._execute_insert("marks", prepared_data)
+
+
