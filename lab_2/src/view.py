@@ -1,5 +1,6 @@
 from typing import Callable, Union
 from datetime import datetime
+from tabulate import tabulate
 
 
 class View:
@@ -23,7 +24,7 @@ class View:
             "students": self.show_read_students,
             "groups": self.show_read_groups,
             "disciplines": self.show_read_disciplines,
-            "marks": self.show_read_disciplines,
+            "marks": self.show_read_marks,
         }
         self.available_update: dict = {
             "student": self.show_update_students,
@@ -37,6 +38,21 @@ class View:
             "discipline": self.show_delete_discipline,
             "mark": self.show_delete_mark,
         }
+        self.table_headers: dict = {
+            "students": ("student_name", "group_name"),
+            "groups": ("group_name", ),
+            "disciplines": ("discipline_name", "student_name"),
+            "marks": ("mark_value", "student_name", "discipline_name", "mark_date"),
+        }
+
+    def output_table(self, table, table_name):
+        print("\n\n")
+        print(
+            tabulate(
+                [[field.strip() if type(field) is str else field for field in row] for row in table],
+                headers=self.table_headers[table_name]
+            )
+        )
 
     @staticmethod
     def output_error_message():

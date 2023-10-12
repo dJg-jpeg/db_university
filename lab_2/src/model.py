@@ -18,6 +18,23 @@ class Model:
             "student_disciplines": """INSERT INTO student_disciplines(student_id, discipline_id) VALUES (%s, %s)""",
             "marks": """INSERT INTO marks(value, discipline_id, student_id, when_received) VALUES (%s, %s, %s, %s)""",
         }
+        self.read_queries = {
+            "students": "select s.name, g.name as group_name\n"
+                        "from students as s\n"
+                        "inner join groups as g on s.group_id = g.id",
+            "groups": "select g.name as group_name\n"
+                      "from groups as g",
+            "disciplines": "select d.name as discipline_name, d.teacher_name as teacher_name\n"
+                           "from disciplines as d",
+            "marks": "select "
+                     "m.value as mark_value, "
+                     "s.name as student_name, "
+                     "d.name as discipline_name, "
+                     "m.when_received as mark_date\n"
+                     "from marks as m\n"
+                     "inner join students as s on m.student_id = s.id\n"
+                     "inner join disciplines as d on m.discipline_id = d.id",
+        }
 
     def disconnect(self):
         if self.connection.closed == 0:
@@ -74,5 +91,9 @@ class Model:
             self._execute_insert("student_disciplines", ((student_id, ), (discipline_id, )))
         prepared_data = ((mark_value, ), (discipline_id, ), (student_id, ), (mark_date, ))
         self._execute_insert("marks", prepared_data)
+
+    def read(self, read_from):
+        result = self._execute_select(self.read_queries[read_from])
+        return result
 
 

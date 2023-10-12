@@ -80,7 +80,8 @@ class Controller:
         self.model.create_mark(value, mark_date, student_name, discipline_name)
 
     def read(self, read_from):
-        pass
+        table = self.model.read(read_from)
+        self.view.output_table(table, read_from)
 
     def update_student(self):
         pass
