@@ -1,7 +1,6 @@
 from datetime import date
 from faker import Faker
 from random import randint, choice
-from psycopg2 import connect
 from pathlib import Path
 
 STUDENTS_AMOUNT = 6
@@ -22,25 +21,16 @@ choose_discipline = [
 ]
 
 
-def create() -> None:
+def create(connection) -> None:
     filepath = Path(__file__).parent.resolve() / Path("all_marks.sql")
     with open(filepath, 'r') as file:
         scrypt = file.read()
-
-    connection = connect(
-        database="students",
-        user="admin",
-        password="admin",
-        host="127.0.0.1",
-        port="5432",
-    )
 
     with connection.cursor() as cur:
         cur.execute(scrypt)
 
     cur.close()
     connection.commit()
-    connection.close()
 
 
 def generate_data() -> tuple[list, list, list, list, list[list, list]]:
@@ -119,38 +109,37 @@ def prepare_data(student_names, group_names, discipline_names, teachers_names, m
     )
 
 
-def insert_data_to_db(students_table, groups_table, disciplines_table, student_disciplines_table, marks_table) -> None:
-    with connect(
-            database="students",
-            user="admin",
-            password="admin",
-            host="127.0.0.1",
-            port="5432",
-    ) as connection:
-        cur = connection.cursor()
+def insert_data_to_db(
+        students_table,
+        groups_table,
+        disciplines_table,
+        student_disciplines_table,
+        marks_table,
+        connection
+) -> None:
+    cur = connection.cursor()
 
-        sql_to_groups = """INSERT INTO groups(name) VALUES (%s)"""
-        cur.executemany(sql_to_groups, groups_table)
+    sql_to_groups = """INSERT INTO groups(name) VALUES (%s)"""
+    cur.executemany(sql_to_groups, groups_table)
 
-        sql_to_students = """INSERT INTO students(name, group_id) VALUES (%s, %s)"""
-        cur.executemany(sql_to_students, students_table)
+    sql_to_students = """INSERT INTO students(name, group_id) VALUES (%s, %s)"""
+    cur.executemany(sql_to_students, students_table)
 
-        sql_to_disciplines = """INSERT INTO disciplines(name, teacher_name) VALUES (%s, %s)"""
-        cur.executemany(sql_to_disciplines, disciplines_table)
+    sql_to_disciplines = """INSERT INTO disciplines(name, teacher_name) VALUES (%s, %s)"""
+    cur.executemany(sql_to_disciplines, disciplines_table)
 
-        sql_to_student_disciplines = """INSERT INTO student_disciplines(student_id, discipline_id) VALUES (%s, %s)"""
-        cur.executemany(sql_to_student_disciplines, student_disciplines_table)
+    sql_to_student_disciplines = """INSERT INTO student_disciplines(student_id, discipline_id) VALUES (%s, %s)"""
+    cur.executemany(sql_to_student_disciplines, student_disciplines_table)
 
-        sql_to_marks = """INSERT INTO marks(value, discipline_id, student_id, when_received) VALUES (%s, %s, %s, %s)"""
-        cur.executemany(sql_to_marks, marks_table)
+    sql_to_marks = """INSERT INTO marks(value, discipline_id, student_id, when_received) VALUES (%s, %s, %s, %s)"""
+    cur.executemany(sql_to_marks, marks_table)
 
-        connection.commit()
-        cur.close()
-    connection.close()
+    connection.commit()
+    cur.close()
 
 
-def reset(fill) -> None:
-    create()
+def reset(fill, connection) -> None:
+    create(connection)
     if fill:
         students, groups, disciplines, teachers, marks = generate_data()
         for_students, for_groups, for_disciplines, for_student_disciplines, for_marks = prepare_data(
@@ -160,4 +149,4 @@ def reset(fill) -> None:
             teachers,
             marks
         )
-        insert_data_to_db(for_students, for_groups, for_disciplines, for_student_disciplines, for_marks)
+        insert_data_to_db(for_students, for_groups, for_disciplines, for_student_disciplines, for_marks, connection)

@@ -1,5 +1,6 @@
 from .scripts.reset_db import reset
 from psycopg2 import connect
+from datetime import datetime
 
 
 class Model:
@@ -51,9 +52,14 @@ class Model:
         self.connection.commit()
         cur.close()
 
-    @staticmethod
-    def reset_db(type_of_reset):
-        reset(fill=type_of_reset)
+    def _execute_update(self, query: str) -> None:
+        cur = self.connection.cursor()
+        cur.execute(query)
+        self.connection.commit()
+        cur.close()
+
+    def reset_db(self, type_of_reset):
+        reset(type_of_reset, self.connection)
 
     def create_student(self, student_name, group_name):
         group_id = self._execute_select(
@@ -96,4 +102,68 @@ class Model:
         result = self._execute_select(self.read_queries[read_from])
         return result
 
+    def update_student(self, find_name, what_to_change, new_value):
+        student_id = self._execute_select(
+            f"select s.id\n"
+            f"from students as s\n"
+            f"where s.name = '{find_name}'"
+        )[0][0]
+        value_to_set = new_value
+        if what_to_change == "group_id":
+            group_name = new_value
+            value_to_set = self._execute_select(
+                f"select g.id\n"
+                f"from groups as g\n"
+                f"where g.name = '{group_name}'"
+            )[0][0]
+        self._execute_update(
+            f"update students\n"
+            f"set {what_to_change} = '{value_to_set}'\n"
+            f"where id = {student_id};"
+        )
 
+    def update_group(self, find_name, new_value):
+        group_id = self._execute_select(
+                f"select g.id\n"
+                f"from groups as g\n"
+                f"where g.name = '{find_name}'"
+        )[0][0]
+        self._execute_update(
+            f"update groups\n"
+            f"set name = '{new_value}'\n"
+            f"where id = {group_id};"
+        )
+
+    def update_discipline(self, find_name, what_to_change, new_value):
+        discipline_id = self._execute_select(
+            f"select d.id\n"
+            f"from disciplines as d\n"
+            f"where d.name = '{find_name}'"
+        )[0][0]
+        self._execute_update(
+            f"update disciplines\n"
+            f"set {what_to_change} = '{new_value}'\n"
+            f"where id = {discipline_id};"
+        )
+
+    def update_mark(self, find_student, find_discipline, what_to_change, new_value):
+        student_id = self._execute_select(
+            f"select s.id\n"
+            f"from students as s\n"
+            f"where s.name = '{find_student}'"
+        )[0][0]
+        discipline_id = self._execute_select(
+            f"select d.id\n"
+            f"from disciplines as d\n"
+            f"where d.name = '{find_discipline}'"
+        )[0][0]
+        if what_to_change == "value":
+            assert 1 <= new_value <= 12
+        elif what_to_change == "when_received":
+            new_value = datetime.strptime(new_value, "%d.%m.%Y").date()
+
+        self._execute_update(
+            f"update marks\n"
+            f"set {what_to_change} = '{new_value}'\n"
+            f"where student_id = '{student_id}', discipline_id = '{discipline_id}'"
+        )

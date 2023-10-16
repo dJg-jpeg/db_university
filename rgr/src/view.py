@@ -126,8 +126,8 @@ class View:
     def show_create_group():
         while True:
             group = input("Input group name:")
-            if len(group) > 4:
-                print("\nPlease input group name that fits in 4 characters\n")
+            if len(group) > 5:
+                print("\nPlease input group name that fits in 5 characters\n")
                 continue
             return group
 
@@ -192,16 +192,65 @@ class View:
         return response, self._get_key_by_value(self.available_update, response)
 
     def show_update_students(self):
-        pass
+        while True:
+            student = input("Input student name:")
+            if len(student) > 50:
+                print("\nPlease input student name that fits in 50 characters\n")
+                continue
+            else:
+                break
+        change_options = {"change_name": "name", "change_group": "group_id"}
+        self._output_options(
+            change_options,
+            amount_of_tabs=2,
+            title="Choose what do you want to change"
+        )
+        response = self._handle_wrong_input(change_options)
+        new_value = input("\nInput new value:")
+        return student, response, new_value
 
-    def show_update_groups(self):
-        pass
+    @staticmethod
+    def show_update_groups():
+        while True:
+            group = input("Input group name:")
+            if len(group) > 5:
+                print("\nPlease input group name that fits in 5 characters\n")
+                continue
+            else:
+                break
+        new_value = input("\nInput new value:")
+        return group, new_value
 
     def show_update_disciplines(self):
-        pass
+        while True:
+            discipline_name = input("Input name of the discipline:")
+            if len(discipline_name) > 50:
+                print("\nPlease input discipline name that fits in 50 characters\n")
+                continue
+            else:
+                break
+        change_options = {"change_discipline_name": "name", "change_teacher_name": "teacher_name"}
+        self._output_options(
+            change_options,
+            amount_of_tabs=2,
+            title="Choose what do you want to change"
+        )
+        response = self._handle_wrong_input(change_options)
+        new_value = input("\nInput new value:")
+        return discipline_name, response, new_value
 
     def show_update_marks(self):
-        pass
+        student_name = input("Input name of person, who received this mark:")
+        discipline_name = input("Input discipline name:")
+        change_options = {"change_mark_value": "value", "change_mark_date": "when_received"}
+        self._output_options(
+            change_options,
+            amount_of_tabs=2,
+            title="Choose what do you want to change"
+        )
+        response = self._handle_wrong_input(change_options)
+        new_value = input("\nInput new value:")
+        return student_name, discipline_name, response, new_value
 
     def show_menu_delete(self):
         self._output_options(
@@ -239,5 +288,8 @@ class View:
                 continue
             return discipline
 
-    def show_delete_mark(self):
-        pass
+    @staticmethod
+    def show_delete_mark():
+        student_name = input("Input name of person, who received this mark:")
+        discipline_name = input("Input discipline name:")
+        return student_name, discipline_name

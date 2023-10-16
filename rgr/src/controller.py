@@ -1,6 +1,7 @@
 from .model import Model
 from .view import View
 from functools import wraps
+from psycopg2.errors import StringDataRightTruncation
 
 
 def catch_db_error(option):
@@ -8,7 +9,7 @@ def catch_db_error(option):
     def inner(self, *args, **kwargs):
         try:
             option(self, *args, **kwargs)
-        except IndexError:
+        except (IndexError, StringDataRightTruncation, ValueError, AssertionError):
             self.view.output_error_message()
 
     return inner
@@ -83,17 +84,25 @@ class Controller:
         table = self.model.read(read_from)
         self.view.output_table(table, read_from)
 
-    def update_student(self):
-        pass
+    @catch_db_error
+    def update_student(self, args):
+        name, what_to_change, new_value = args
+        self.model.update_student(name, what_to_change, new_value)
 
-    def update_group(self):
-        pass
+    @catch_db_error
+    def update_group(self, args):
+        name, new_value = args
+        self.model.update_group(name, new_value)
 
-    def update_discipline(self):
-        pass
+    @catch_db_error
+    def update_discipline(self, args):
+        find_name, what_to_change, new_value = args
+        self.model.update_discipline(find_name, what_to_change, new_value)
 
-    def update_mark(self):
-        pass
+    @catch_db_error
+    def update_mark(self, args):
+        find_student, find_discipline, what_to_change, new_value = args
+        self.model.update_mark(find_student, find_discipline, what_to_change, new_value)
 
     def delete_student(self):
         pass
