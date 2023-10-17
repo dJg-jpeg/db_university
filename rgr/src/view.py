@@ -11,7 +11,13 @@ class View:
             "read": self.show_menu_read,
             "update": self.show_menu_update,
             "delete": self.show_menu_delete,
+            "requests": self.show_menu_requests,
             "quit": None,
+        }
+        self.available_requests: dict = {
+            "student_rating": self.show_requests_rating,
+            "avg_group_discipline_mark": self.show_requests_avg_mark,
+            "student_group_list": self.show_requests_group_list,
         }
         self.available_create: dict = {
             "db": self.show_create_db,
@@ -43,6 +49,9 @@ class View:
             "groups": ("group_name", ),
             "disciplines": ("discipline_name", "teacher_name"),
             "marks": ("mark_value", "student_name", "discipline_name", "mark_date"),
+            "student_rating": ("avg_mark", "student_name"),
+            "avg_group_discipline_mark": ("average_mark", "group_name", "discipline_name"),
+            "group_list": ("student_name", "group_name"),
         }
 
     def output_table(self, table, table_name):
@@ -91,6 +100,32 @@ class View:
         )
         response = self._handle_wrong_input(self.available_commands_menus)
         return response, self._get_key_by_value(self.available_commands_menus, response)
+
+    def show_menu_requests(self) -> tuple[Callable, str]:
+        self._output_options(
+            self.available_requests,
+            amount_of_tabs=1,
+            title="Choose request"
+        )
+        response = self._handle_wrong_input(self.available_requests)
+        return response, self._get_key_by_value(self.available_requests, response)
+
+    @staticmethod
+    def show_requests_rating() -> str:
+        return "student_rating"
+
+    @staticmethod
+    def show_requests_avg_mark() -> str:
+        return "avg_group_discipline_mark"
+
+    @staticmethod
+    def show_requests_group_list() -> tuple[str, str]:
+        while True:
+            group = input("Input group name:")
+            if len(group) > 5:
+                print("\nPlease input group name that fits in 5 characters\n")
+                continue
+            return "student_group_list", group
 
     def show_menu_create(self) -> tuple[Callable, str]:
         self._output_options(

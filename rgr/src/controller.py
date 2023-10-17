@@ -43,6 +43,11 @@ class Controller:
                 "discipline": self.delete_discipline,
                 "mark": self.delete_mark,
             },
+            "requests": {
+                "student_rating": self.request_rating,
+                "avg_group_discipline_mark": self.request_avg_mark,
+                "student_group_list": self.request_group_list,
+            },
         }
         self.model = Model()
         self.view = View()
@@ -62,6 +67,20 @@ class Controller:
             self.model.reset_db(True)
         else:
             self.model.reset_db(False)
+
+    def request_rating(self, _):
+        table = self.model.request_rating()
+        self.view.output_table(table, "student_rating")
+
+    def request_avg_mark(self, _):
+        table = self.model.request_avg_mark()
+        self.view.output_table(table, "avg_group_discipline_mark")
+
+    @catch_db_error
+    def request_group_list(self, args):
+        _, group_name = args
+        table = self.model.request_group_list(group_name)
+        self.view.output_table(table, "group_list")
 
     @catch_db_error
     def create_student(self, args):
