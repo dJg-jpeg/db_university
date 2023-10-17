@@ -52,7 +52,7 @@ class Model:
         self.connection.commit()
         cur.close()
 
-    def _execute_update(self, query: str) -> None:
+    def _execute_query(self, query: str) -> None:
         cur = self.connection.cursor()
         cur.execute(query)
         self.connection.commit()
@@ -116,7 +116,7 @@ class Model:
                 f"from groups as g\n"
                 f"where g.name = '{group_name}'"
             )[0][0]
-        self._execute_update(
+        self._execute_query(
             f"update students\n"
             f"set {what_to_change} = '{value_to_set}'\n"
             f"where id = {student_id};"
@@ -128,7 +128,7 @@ class Model:
                 f"from groups as g\n"
                 f"where g.name = '{find_name}'"
         )[0][0]
-        self._execute_update(
+        self._execute_query(
             f"update groups\n"
             f"set name = '{new_value}'\n"
             f"where id = {group_id};"
@@ -140,7 +140,7 @@ class Model:
             f"from disciplines as d\n"
             f"where d.name = '{find_name}'"
         )[0][0]
-        self._execute_update(
+        self._execute_query(
             f"update disciplines\n"
             f"set {what_to_change} = '{new_value}'\n"
             f"where id = {discipline_id};"
@@ -158,12 +158,70 @@ class Model:
             f"where d.name = '{find_discipline}'"
         )[0][0]
         if what_to_change == "value":
-            assert 1 <= new_value <= 12
+            assert 1 <= int(new_value) <= 12
         elif what_to_change == "when_received":
             new_value = datetime.strptime(new_value, "%d.%m.%Y").date()
 
-        self._execute_update(
+        self._execute_query(
             f"update marks\n"
             f"set {what_to_change} = '{new_value}'\n"
-            f"where student_id = '{student_id}', discipline_id = '{discipline_id}'"
+            f"where student_id = '{student_id}' and discipline_id = '{discipline_id}'"
         )
+
+    def delete_student(self, name):
+        student_id = self._execute_select(
+            f"select s.id\n"
+            f"from students as s\n"
+            f"where s.name = '{name}'"
+        )[0][0]
+
+        query = f"delete from student_disciplines where student_id = {student_id};\n" \
+                f"delete from marks where student_id = {student_id};\n" \
+                f"delete from students where id = {student_id};"
+        self._execute_query(query)
+
+    def delete_group(self, name):
+        group_id = self._execute_select(
+            f"select g.id\n"
+            f"from groups as g\n"
+            f"where g.name = '{name}'"
+        )[0][0]
+        students = self._execute_select(
+            f"select s.name\n"
+            f"from students as s\n"
+            f"where s.group_id = '{group_id}'"
+        )
+        students = [student[0].strip() for student in students]
+        for s_name in students:
+            self.delete_student(s_name)
+
+        self._execute_query(f"delete from groups where id = {group_id}")
+
+    def delete_discipline(self, name):
+        discipline_id = self._execute_select(
+            f"select d.id\n"
+            f"from disciplines as d\n"
+            f"where d.name = '{name}'"
+        )[0][0]
+
+        query = f"delete from student_disciplines where discipline_id = {discipline_id};\n" \
+                f"delete from marks where discipline_id = {discipline_id};\n" \
+                f"delete from disciplines where id = {discipline_id};"
+        self._execute_query(query)
+
+    def delete_mark(self, find_student, find_discipline):
+        student_id = self._execute_select(
+            f"select s.id\n"
+            f"from students as s\n"
+            f"where s.name = '{find_student}'"
+        )[0][0]
+        discipline_id = self._execute_select(
+            f"select d.id\n"
+            f"from disciplines as d\n"
+            f"where d.name = '{find_discipline}'"
+        )[0][0]
+
+        query = \
+            f"delete from student_disciplines where student_id = {student_id} and discipline_id = {discipline_id};\n" \
+            f"delete from marks where student_id = {student_id} and discipline_id = {discipline_id};"
+        self._execute_query(query)

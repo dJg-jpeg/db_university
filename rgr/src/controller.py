@@ -104,14 +104,19 @@ class Controller:
         find_student, find_discipline, what_to_change, new_value = args
         self.model.update_mark(find_student, find_discipline, what_to_change, new_value)
 
-    def delete_student(self):
-        pass
+    @catch_db_error
+    def delete_student(self, name):
+        self.model.delete_student(name)
 
-    def delete_group(self):
-        pass
+    @catch_db_error
+    def delete_group(self, name):
+        self.model.delete_group(name)
 
-    def delete_discipline(self):
-        pass
+    @catch_db_error
+    def delete_discipline(self, name):
+        self.model.delete_discipline(name)
 
-    def delete_mark(self):
-        pass
+    @catch_db_error
+    def delete_mark(self, args):
+        student, discipline = args
+        self.model.delete_mark(student, discipline)

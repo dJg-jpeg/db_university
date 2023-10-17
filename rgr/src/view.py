@@ -41,7 +41,7 @@ class View:
         self.table_headers: dict = {
             "students": ("student_name", "group_name"),
             "groups": ("group_name", ),
-            "disciplines": ("discipline_name", "student_name"),
+            "disciplines": ("discipline_name", "teacher_name"),
             "marks": ("mark_value", "student_name", "discipline_name", "mark_date"),
         }
 
@@ -274,8 +274,8 @@ class View:
     def show_delete_group():
         while True:
             group = input("Input group name:")
-            if len(group) > 4:
-                print("\nPlease input student name that fits in 4 characters\n")
+            if len(group) > 5:
+                print("\nPlease input group name that fits in 5 characters\n")
                 continue
             return group
 
